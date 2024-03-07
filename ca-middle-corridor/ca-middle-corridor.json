@@ -1,0 +1,116 @@
+[
+    {
+        "name": "Xi'an",
+        "latitude":   34.261,
+        "longitude": 108.9424,
+        "connections": ["Urumqui"]
+    },
+    {
+        "name": "Urumqui",
+        "latitude":   43.8225,
+        "longitude":  87.6125,
+        "connections": ["Dostyk", "Khorgos"]
+    },
+    {
+        "name": "Dostyk",
+        "latitude":   45.253333,
+        "longitude":  82.484444,
+        "connections": ["Aktau"]
+    },
+    {
+        "name": "Khorgos",
+        "latitude":   44.2125, 
+        "longitude":  80.409722,
+        "connections": ["Almaty"]
+    },
+    {
+        "name": "Almaty",
+        "latitude":   43.24, 
+        "longitude":  76.915,
+        "connections": ["Taraz"]
+    },
+    {
+        "name": "Taraz",
+        "latitude":   42.9,
+        "longitude":  71.366667,
+        "connections": ["Bishkek", "Tashkent", "Aktau"]
+    },
+    {
+        "name": "Bishkek",
+        "latitude":   42.874722,
+        "longitude":  74.612222,
+        "connections": ["Bishkek"]
+    },
+    {
+        "name": "Tashkent",
+        "latitude":   41.311111,
+        "longitude":  69.279722,
+        "connections": ["Samarkand"]
+    },
+    {
+        "name": "Samarkand",
+        "latitude":   39.654722,
+        "longitude":  66.975833,
+        "connections": ["Ashgabad"]
+    },
+    {
+        "name": "Ashgabad",
+        "latitude":   37.9375,
+        "longitude":  58.38,
+        "connections": ["Turkmenbashi"]
+    },
+    {
+        "name": "Turkmenbashi",
+        "latitude":   40.016667,
+        "longitude":  52.966667,
+        "connections": ["Baku"]
+    },
+    {
+        "name": "Aktau",
+        "latitude":   43.6525,
+        "longitude":  51.1575,
+        "connections": ["Baku"]
+    },
+    {
+        "name": "Baku",
+        "latitude":   40.395278,
+        "longitude":  49.882222,
+        "connections": ["Tbilisi"]
+    },
+    {
+        "name": "Tbilisi",
+        "latitude":   41.7225,
+        "longitude":  44.7925,
+        "connections": ["Batumi", "Kars"]
+    },
+    {
+        "name": "Batumi",
+        "latitude":   41.645833,
+        "longitude":  41.641667,
+        "connections": ["Varna"]
+    },
+    {
+        "name": "Kars",
+        "latitude":   40.607778,
+        "longitude":  43.095833,
+        "connections": ["Istanbul"]
+    },
+    {
+        "name": "Istanbul",
+        "latitude":   41.013611,
+        "longitude":  28.955,
+        "connections": ["Bratislava"]
+    },
+    {
+        "name": "Varna",
+        "latitude":   43.216667,
+        "longitude":  27.916667,
+        "connections": ["Bratislava"]
+    },
+    {
+        "name": "Bratislava",
+        "latitude":   48.143889,
+        "longitude":  17.109722,
+        "connections": ["Bratislava"]
+    }
+]

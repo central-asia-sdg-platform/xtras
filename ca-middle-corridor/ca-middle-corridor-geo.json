@@ -1,0 +1,672 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Xi'an"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.9424,
+                    34.261
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Urumqui"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    87.6125,
+                    43.8225
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Dostyk"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    82.484444,
+                    45.253333
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Khorgos"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    80.409722,
+                    44.2125
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Almaty"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.915,
+                    43.24
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Taraz"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    71.366667,
+                    42.9
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Bishkek"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    74.612222,
+                    42.874722
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Tashkent"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    69.279722,
+                    41.311111
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Samarkand"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    66.975833,
+                    39.654722
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Ashgabad"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    58.38,
+                    37.9375
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Turkmenbashi"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    52.966667,
+                    40.016667
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Aktau"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.1575,
+                    43.6525
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Baku"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    49.882222,
+                    40.395278
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Tbilisi"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    44.7925,
+                    41.7225
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Batumi"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    41.641667,
+                    41.645833
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Kars"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    43.095833,
+                    40.607778
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Istanbul"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    28.955,
+                    41.013611
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Varna"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    27.916667,
+                    43.216667
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Bratislava"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    17.109722,
+                    48.143889
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Xi'an-Urumqui",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        108.9424,
+                        34.261
+                    ],
+                    [
+                        87.6125,
+                        43.8225
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Urumqui-Dostyk",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        87.6125,
+                        43.8225
+                    ],
+                    [
+                        82.484444,
+                        45.253333
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Urumqui-Khorgos",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        87.6125,
+                        43.8225
+                    ],
+                    [
+                        80.409722,
+                        44.2125
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Dostyk-Aktau",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        82.484444,
+                        45.253333
+                    ],
+                    [
+                        51.1575,
+                        43.6525
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Khorgos-Almaty",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        80.409722,
+                        44.2125
+                    ],
+                    [
+                        76.915,
+                        43.24
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Almaty-Taraz",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        76.915,
+                        43.24
+                    ],
+                    [
+                        71.366667,
+                        42.9
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Taraz-Bishkek",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        71.366667,
+                        42.9
+                    ],
+                    [
+                        74.612222,
+                        42.874722
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Taraz-Tashkent",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        71.366667,
+                        42.9
+                    ],
+                    [
+                        69.279722,
+                        41.311111
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Taraz-Aktau",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        71.366667,
+                        42.9
+                    ],
+                    [
+                        51.1575,
+                        43.6525
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Tashkent-Samarkand",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        69.279722,
+                        41.311111
+                    ],
+                    [
+                        66.975833,
+                        39.654722
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Samarkand-Ashgabad",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        66.975833,
+                        39.654722
+                    ],
+                    [
+                        58.38,
+                        37.9375
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Ashgabad-Turkmenbashi",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        58.38,
+                        37.9375
+                    ],
+                    [
+                        52.966667,
+                        40.016667
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Turkmenbashi-Baku",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        52.966667,
+                        40.016667
+                    ],
+                    [
+                        49.882222,
+                        40.395278
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Aktau-Baku",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        51.1575,
+                        43.6525
+                    ],
+                    [
+                        49.882222,
+                        40.395278
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Baku-Tbilisi",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        49.882222,
+                        40.395278
+                    ],
+                    [
+                        44.7925,
+                        41.7225
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Tbilisi-Batumi",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        44.7925,
+                        41.7225
+                    ],
+                    [
+                        41.641667,
+                        41.645833
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Tbilisi-Kars",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        44.7925,
+                        41.7225
+                    ],
+                    [
+                        43.095833,
+                        40.607778
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Batumi-Varna",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        41.641667,
+                        41.645833
+                    ],
+                    [
+                        27.916667,
+                        43.216667
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Kars-Istanbul",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        43.095833,
+                        40.607778
+                    ],
+                    [
+                        28.955,
+                        41.013611
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Istanbul-Bratislava",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        28.955,
+                        41.013611
+                    ],
+                    [
+                        17.109722,
+                        48.143889
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Varna-Bratislava",
+                "connection_type": "corridor"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        27.916667,
+                        43.216667
+                    ],
+                    [
+                        17.109722,
+                        48.143889
+                    ]
+                ]
+            }
+        }
+    ]
+}

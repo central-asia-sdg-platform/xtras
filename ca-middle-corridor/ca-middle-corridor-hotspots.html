@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<base target="_top">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Transport Corridors in Central Asia</title>
+	
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!--
+    <script src="countries.js" type="text/javascript"></script>
+    -->
+
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+        #map {
+			height: 100%;
+			width: 100%;
+        }
+	</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+    // Center on Central Asia, zoom = 5 
+	var map = L.map('map').setView([41.096, 72.114], 5);
+    /*
+    var highlight_ids = ["KAZ", "UZB", "KGZ", "AZE", "GEO", "TUR", "TKM"]
+    var highlight_out_ids = ["AFG", "TJK"]
+    */ 
+    // Define layers 
+    var highlightedCountriesLayer;
+    // var citiesAndConnectionsLayer;
+    var citiesAndConnectionsLayer = L.layerGroup().addTo(map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 10,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+/*
+    // Loop through the countries GeoJSON data and apply styles
+    countries.features.forEach(function(feature) {
+        var countryID = feature.id;
+
+        // Check if the country ID is in the highlight_ids array
+        if (highlight_ids.includes(countryID)) {
+            feature.properties.fillColor = 'blue';
+            feature.properties.fillOpacity = 0.66;
+            feature.properties.color = 'blue';
+            feature.properties.weight = 1;
+        }
+        // Check if the country ID is in the highlight_out_ids array
+        else if (highlight_out_ids.includes(countryID)) {
+            feature.properties.fillColor = '#ff0066';
+            feature.properties.fillOpacity = 0.66;
+            feature.properties.color = '#ff0066';
+            feature.properties.weight = 1;
+        }
+    });
+
+    // Function to add layer with GeoJSON data
+    function addGeoJSONLayer(data) {
+        L.geoJSON(data, {
+            style: function(feature) {
+                return {
+                    fillColor: feature.properties.fillColor || 'gray', // Default color if not specified
+                    fillOpacity: feature.properties.fillOpacity || 0.2, // Default opacity if not specified
+                    color: feature.properties.color || 'gray', // Default border color if not specified
+                    weight: feature.properties.weight || 1 // Default border width if not specified
+                };
+            },
+            onEachFeature: function(feature, layer) {
+                var popup_text = "";
+                if (feature.properties && feature.properties.name) {
+                    popup_text = popup_text + "<b>" + feature.properties.name + "</b></br>";
+                }
+                if (feature.properties && feature.properties.description) {
+                    popup_text = popup_text + feature.properties.description;
+                }
+                layer.bindPopup(popup_text);
+            }
+        }).addTo(map);
+    }
+*/
+
+//..................................................................................................................................
+    // Load countries from highlight_countries.json
+    fetch('highlight_countries.json')
+        .then(response => response.json())
+        .then(data => {
+            // Create GeoJSON layer for highlighted countries
+            highlightedCountriesLayer = L.geoJSON(data, {
+                style: function (feature) {
+                    return {
+                        fillColor: feature.properties.fillColor || '#cccccc',
+                        fillOpacity: feature.properties.fillOpacity || 0.5,
+                        color: feature.properties.color || '#333333',
+                        weight: feature.properties.weight || 1
+                    };
+                },
+                onEachFeature: function (feature, layer) {
+                    var popupContent = `<h1>${feature.properties.name}</h1>${feature.properties.description}`;
+                    layer.bindPopup(popupContent, {maxWidth: 750, maxHeight: 500});
+                }
+            });
+            highlightedCountriesLayer.addTo(map);
+            /* This block is below 👇
+            // Define your base layer
+            var baseLayer = {
+                "Base Map": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                })
+            };
+
+            // Define your overlay layers
+            var overlayLayers = {
+                "Countries": highlightedCountriesLayer
+            };
+
+            // Add control to switch layers on and off
+            L.control.layers(baseLayer, overlayLayers).addTo(map);
+            */ 
+        })
+        .catch(error => console.error('Error loading highlight_countries.json:', error));
+//..................................................................................................................................
+
+
+/*
+//..................................................................................................................................
+// Load cities and connections from ca-middle-corridor-geo.json
+    fetch('ca-middle-corridor-geo.json')
+        .then(response => response.json())
+        .then(data => {
+            // Create GeoJSON layer for cities and connections
+            citiesAndConnectionsLayer = L.geoJSON(data, {
+                onEachFeature: function(feature, layer) {
+                    if (feature.geometry.type === 'Point') {
+                        // If the geometry type is 'Point', it's a city
+                        var cityName = `<strong>${feature.properties.name}</strong>`;
+                        layer.bindPopup(cityName);
+                        layer.setIcon(L.circleMarker(layer.getLatLng(), {
+                            radius: 10,
+                            fillColor: "orange",
+                            color: "#000",
+                            weight: 1,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }));
+                    } else if (feature.geometry.type === 'LineString') {
+                        // If the geometry type is 'LineString', it's a connection
+                        layer.setStyle({
+                            color: "green",
+                            weight: 6,
+                            opacity: .66
+                        });
+                    }
+                    layer.bindPopup(feature.properties.name);
+                }
+            });
+            citiesAndConnectionsLayer.addTo(map);
+        })
+        .catch(error => console.error('Error loading ca-middle-corridor-geo.json:', error));
+//..................................................................................................................................
+*/
+
+
+//..................................................................................................................................
+    // Load GeoJSON data and add to layer group
+    fetch('ca-middle-corridor-geo.json')
+        .then(response => response.json())
+        .then(data => {
+            // Create GeoJSON layer
+            var geojsonLayer = L.geoJSON(data, {
+                pointToLayer: function (feature, latlng) {
+                    // For points (cities)
+                    return L.circleMarker(latlng, {
+                        radius: 15,
+                        fillColor: 'green',
+                        fillOpacity: 0.33,
+                        color: 'green',
+                        weight: 1
+                    }).bindPopup(feature.properties.name);
+                },
+                style: function (feature) {
+                    // For LineString (connections)
+                    return {
+                        color: 'green',
+                        weight: 7,
+                        opacity: 0.33
+                    };
+                }
+            });
+            // Add GeoJSON layer to layer group
+            geojsonLayer.addTo(citiesAndConnectionsLayer);
+        })
+        .catch(error => console.error('Error loading ca-middle-corridor-geo.json:', error));
+//..................................................................................................................................
+
+//..................................................................................................................................
+// Add SDG Wheel for System mapping 
+    var SDGIcon = L.icon({
+        iconUrl: 'sdg-wheel-128px.png',
+        shadowUrl: 'sdg-wheel-shadow-128px.png',
+
+        iconSize:     [128, 128], // size of the icon
+        shadowSize:   [128, 128], // size of the shadow
+        iconAnchor:   [64, 64], // point of the icon which will correspond to marker's location
+        shadowAnchor: [64, 64],  // the same for the shadow
+        popupAnchor:  [-0, -32] // point from which the popup should open relative to the iconAnchor
+    });
+
+    L.marker([45.383867992803935, 49.5743460144695], {icon: SDGIcon}).addTo(map).bindPopup("<iframe src='https://embed.kumu.io/8cdda5c982f856d58f951bf0aaf27baf' width='940' height='600' frameborder='0'></iframe>",  {maxWidth: 960, maxHeight: 620});
+
+//..................................................................................................................................
+
+
+    /* 
+    // Event listener for popup open event
+    map.on('popupopen', function (e) {
+        // Get popup content
+        var content = e.popup.getContent();
+        console.log(content)
+        // Display popup content in the narrative div
+        document.getElementById('narrative').innerHTML = content;
+    });
+    */ 
+
+    // DEFINE LAYERS AND CONTROLS ////////////////////////////////////////////////////////////////////////////////////
+    // Define your base layer
+    var baseLayer = {
+        "Base Map": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        })
+    };
+
+    // Define your overlay layers
+    var overlayLayers = {
+        "Central Asia": highlightedCountriesLayer, // You can add more overlay layers here
+        "Middle Transport Corridor": citiesAndConnectionsLayer 
+        // "Hotspots": hotspots
+        // "Other Layer": otherLayer
+    };
+
+    // Add control to switch layers on and off
+    L.control.layers(baseLayer, overlayLayers).addTo(map);
+    </script>
+</body>
+</html>
