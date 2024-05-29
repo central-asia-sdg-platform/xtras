@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamics of integration of SDG targets into the national policy documents under implementation in relation to the number of targets adopted by Turkmenistan</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+
+<body>
+	<div> 
+		<canvas id="stackedChartID"></canvas> 
+	</div> 
+	<script> 
+		// Get the drawing context on the canvas 
+		var myContext = document.getElementById( 
+			"stackedChartID").getContext('2d'); 
+		var barChartData = { 
+				labels: ["Казахстан", 
+				         "Кыргызстан", 
+						 "Таджикистан", 
+					     "Туркменистан", 
+						 "Узбекистан"], 
+				datasets: [
+				// Total
+				{ 
+					label: 'Инфекционные, материнские, перинатальные состояния и состояния питания', 
+					backgroundColor: "#C46627", 
+					data: [32.4, 39.3, 85.4, 117.7, 38.6], 
+				}, { 
+					label: 'Неинфекционные заболевания', 
+					backgroundColor: "#ED7D31", 
+					data: [620.9, 588.1, 876.1, 668.2, 673.1], 
+				}, { 
+					label: 'Травмы', 
+					backgroundColor: "#F4B9A4", 
+					data: [56.8, 40.7, 45.0, 38.2, 35.2], 
+				}
+			], 
+			}
+
+		var myChart = new Chart(myContext, { 
+			type: 'bar', 
+			data: barChartData, 
+			options: { 
+				plugins: { 
+					title: { 
+						display: true, 
+						text: 'Стандартизированные по возрасту показатели смертности в Центральной Азии по причинам (на 100 000 населения)' 
+					}, 
+				}, 
+				scales: { 
+					x: { 
+						stacked: true, 
+					}, 
+					y: { 
+						stacked: true
+					} 
+				} 
+			} 
+		}); 
+	</script> 
+</body> 
+
+</html>
