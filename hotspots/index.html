@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Leaflet Map Project</title>
+    
+
+    <!-- Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <!-- GeoTIFF processing libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/geotiff@1.0.0-beta.16/dist/geotiff.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/georaster@1.5.6/dist/georaster.browser.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/georaster-layer-for-leaflet@1.0.0/dist/georaster-layer-for-leaflet.min.js"></script>
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-pattern/0.1.0/leaflet.pattern.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            flex: 1;
+            height: 100%;
+        }
+        
+        .layer-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-height: 80vh;
+            overflow-y: auto;
+            min-width: 250px;
+        }
+        
+        .layer-control h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .layer-item {
+            margin-bottom: 8px;
+        }
+        
+        .layer-group {
+            margin-bottom: 15px;
+        }
+        
+        .layer-group-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .info-box {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1500;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    
+    <div class="layer-control">
+        <h3>Layer Control</h3>
+        <div id="layer-list"></div>
+    </div>
+    
+    <div class="info-box" id="info-box">
+        <div class="info-title" id="info-title">Feature Information</div>
+        <div id="info-content"></div>
+    </div>
+    
+    <div class="loading-indicator" id="loading">
+        Loading large GeoTIFF... Please wait.
+    </div>
+
+    <script>
+        // Initialize the map with Central Asia focus
+        const map = L.map('map').setView([45.505, 70], 5);
+        
+        // Add base map layers
+        const baseLayers = {
+            'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }),
+            'Satellite': L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google'
+            }),
+            'Terrain': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors'
+            })
+        };
+        
+        // Add default base layer
+        baseLayers['OpenStreetMap'].addTo(map);
+        
+        // Layer groups for organization
+        const layerGroups = {
+            'Base Maps': Object.keys(baseLayers).map(name => ({ 
+                name, 
+                layer: baseLayers[name],
+                type: 'base'
+            })),
+            'Raster Layers': [],
+            'Points': [],
+            'Lines': [],
+            'Polygons': []
+        };
+        
+        // Custom icon definitions - Extended with Central Asia specific icons
+        const customIcons = {
+            default: L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            }),
+            'fire-prone': L.icon({
+                iconUrl: 'fire-prone.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'hazard-waste-sites': L.icon({
+                iconUrl: 'hazard-waste-sites.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'm2': L.icon({
+                iconUrl: 'm2.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'blue-circle': L.icon({
+                iconUrl: 'blue-circle.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'locust': L.icon({
+                iconUrl: 'locust.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'redu-ice': L.icon({
+                iconUrl: 'redu-ice.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'drought-1': L.icon({
+                iconUrl: 'drought-1.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'storage-pesticides': L.icon({
+                iconUrl: 'storage-pesticides.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            }),
+            'radioactive': L.icon({
+                iconUrl: 'radioactive.PNG',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            })
+        };
+        
+        // Extended custom line styles
+        const lineStyles = {
+            default: {
+                color: '#3388ff',
+                weight: 3,
+                opacity: 0.7
+            },
+            road: {
+                color: '#ff6600',
+                weight: 5,
+                opacity: 0.7
+            },
+            river: {
+                color: '#0099ff',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '5, 10'
+            },
+            // New styles for Central Asia layers
+            'dotted-red-line': {
+                color: '#ff0000',
+                weight: 3,
+                opacity: 0.8,
+                dashArray: '5, 5'
+            },
+            'red-double-line': {
+                color: '#ff0000',
+                weight: 4,
+                opacity: 0.8
+            },
+            'blue-dash-double-line': {
+    color: '#0000ff',
+    weight: 4,
+    opacity: 0.8,
+    dashArray: '10, 5',
+    // Double line effect
+    lineCap: 'square',
+    shadow: {
+        color: '#0000ff',
+        weight: 6,
+        opacity: 0.3
+    }
+},
+        'blue-double-line': {
+    color: '#0000ff',
+    weight: 4,
+    opacity: 0.8,
+    lineCap: 'square',
+    // Double line effect
+    shadow: {
+        color: '#0000ff',
+        weight: 6,
+        opacity: 0.3
+    }
+}
+        };
+        
+        // Extended custom polygon styles
+        const polygonStyles = {
+            default: {
+                fillColor: '#3388ff',
+                color: '#3388ff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4
+            },
+            residential: {
+                fillColor: '#ffa500',
+                color: '#ff8c00',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4
+            },
+            forest: {
+                fillColor: '#33cc33',
+                color: '#228B22',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4
+            },
+            water: {
+                fillColor: '#0099ff',
+                color: '#0077cc',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4
+            },
+            // New styles for Central Asia layers
+            'orange-vertical-lines': {
+                fillColor: '#ffa500',
+                color: '#ff0000',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4,
+                fillPattern: {
+                    type: 'vertical-lines',
+                    color: '#ff0000',
+                    width: 2,
+                    gap: 5
+                }
+            },
+            'orange-horizontal-lines': {
+                fillColor: '#ffa500',
+                color: '#ff0000',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4,
+                fillPattern: {
+                    type: 'horizontal-lines',
+                    color: '#ff0000',
+                    width: 2,
+                    gap: 5
+                }
+            },
+            'yellow-cross-hatch': {
+                fillColor: '#ffff00',
+                color: '#ff0000',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4,
+                fillPattern: {
+                    type: 'cross-hatch',
+                    color: '#ff0000',
+                    width: 2,
+                    gap: 5
+                }
+            },
+            'light-blue': {
+                fillColor: '#add8e6',
+                color: '#0000ff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4
+            },
+            'purple': {
+                fillColor: '#800080',
+                color: '#4b0082',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.4
+            }
+        };
+        
+        // Info box handling
+        const infoBox = document.getElementById('info-box');
+        const infoTitle = document.getElementById('info-title');
+        const infoContent = document.getElementById('info-content');
+        
+        function showInfo(title, content) {
+            infoTitle.textContent = title;
+            infoContent.innerHTML = content;
+            infoBox.style.display = 'block';
+        }
+        
+        function hideInfo() {
+            infoBox.style.display = 'none';
+        }
+        
+        // Load GeoTIFF function
+        async function loadGeoTIFF(url, name, options = {}) {
+            const loadingIndicator = document.getElementById('loading');
+            loadingIndicator.style.display = 'block';
+            
+            try {
+                let arrayBuffer;
+                
+                // Check if the input is a File object (from file input)
+                if (url instanceof File) {
+                    // Read from File object
+                    arrayBuffer = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsArrayBuffer(url);
+                    });
+                } else {
+                    // Fetch from URL (remote or local)
+                    const response = await fetch(url);
+                    arrayBuffer = await response.arrayBuffer();
+                }
+                
+                // Parse the GeoTIFF using the global parseGeoraster function
+                const parsedRaster = await parseGeoraster(arrayBuffer);
+                
+                // Create the layer
+                const geoRasterLayer = new GeoRasterLayer({
+                    georaster: parsedRaster,
+                    opacity: options.opacity || 0.7,
+                    resolution: options.resolution || 256
+                });
+                
+                // Add to layer groups
+                layerGroups['Raster Layers'].push({
+                    name: name,
+                    layer: geoRasterLayer,
+                    visible: true,
+                    info: options.info || `GeoTIFF Layer: ${name}`
+                });
+                
+                // Add to map
+                geoRasterLayer.addTo(map);
+                
+                // Update map extent if needed
+                if (options.fitBounds && geoRasterLayer.getBounds && geoRasterLayer.getBounds().isValid()) {
+                    map.fitBounds(geoRasterLayer.getBounds());
+                }
+                
+                // Update layer control
+                updateLayerControl();
+                
+            } catch (error) {
+                console.error('Error loading GeoTIFF:', error);
+                alert(`Failed to load GeoTIFF: ${error.message}\n\nMake sure you are running a local web server.`);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        // Load GeoJSON function
+        async function loadGeoJSON(url, name, options = {}) {
+            try {
+                let data;
+                
+                // Check if the input is a File object (from file input)
+                if (url instanceof File) {
+                    // Read from File object
+                    const text = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsText(url);
+                    });
+                    data = JSON.parse(text);
+                } else {
+                    // Fetch from URL (remote or local)
+                    const response = await fetch(url);
+                    
+                    // Check if the response is OK
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+                    }
+                    
+                    // Check if Content-Type is JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && !contentType.includes('application/json')) {
+                        console.warn(`Warning: Response Content-Type is not JSON: ${contentType}`);
+                    }
+                    
+                    // Try to parse as JSON
+                    const text = await response.text();
+                    try {
+                        data = JSON.parse(text);
+                    } catch (parseError) {
+                        console.error(`Failed to parse JSON from ${url}`);
+                        console.error(`Response starts with: ${text.substring(0, 100)}...`);
+                        throw new Error(`Invalid JSON: ${parseError.message}`);
+                    }
+                }
+                
+                // Apply custom styles or icons based on the options
+                const geojsonOptions = {
+                    pointToLayer: function(feature, latlng) {
+                        // Use custom icon if specified in options
+                        let iconKey = 'default';
+                        if (options.iconKey) {
+                            iconKey = options.iconKey;
+                        }
+                        
+                        // Use feature properties icon if available, otherwise use the specified icon
+                        const iconType = feature.properties.icon || iconKey;
+                        const icon = customIcons[iconType] || customIcons.default;
+                        
+                        return L.marker(latlng, { icon: icon });
+                    },
+                    style: function(feature) {
+                        if (feature.geometry.type.includes('Polygon')) {
+                            // Use custom style if specified in options
+                            if (options.styleKey) {
+                                return polygonStyles[options.styleKey] || polygonStyles.default;
+                            }
+                            
+                            // Use feature properties style if available
+                            const styleType = feature.properties.style || 'default';
+                            return polygonStyles[styleType] || polygonStyles.default;
+                        } else if (feature.geometry.type.includes('LineString')) {
+                            // Use custom style if specified in options
+                            if (options.styleKey) {
+                                return lineStyles[options.styleKey] || lineStyles.default;
+                            }
+                            
+                            // Use feature properties style if available
+                            const styleType = feature.properties.style || 'default';
+                            return lineStyles[styleType] || lineStyles.default;
+                        }
+                    },
+                    onEachFeature: function(feature, layer) {
+                        // Define behavior when a feature is clicked
+                        layer.on('click', function() {
+                            const properties = feature.properties;
+                            let content = '<table>';
+                            
+                            for (const key in properties) {
+                                // Skip style and icon properties
+                                if (key !== 'style' && key !== 'icon') {
+                                    content += `<tr><td><strong>${key}:</strong></td><td>${properties[key]}</td></tr>`;
+                                }
+                            }
+                            
+                            content += '</table>';
+                            showInfo(properties.name || name, content);
+                        });
+                    }
+                };
+                
+                const geojsonLayer = L.geoJSON(data, geojsonOptions);
+                
+                // Determine which category this layer belongs to
+                let categoryName = 'Points';
+                if (options.category) {
+                    categoryName = options.category;
+                } else if (data.features && data.features.length > 0) {
+                    const firstFeature = data.features[0];
+                    if (firstFeature.geometry.type.includes('Polygon')) {
+                        categoryName = 'Polygons';
+                    } else if (firstFeature.geometry.type.includes('LineString')) {
+                        categoryName = 'Lines';
+                    }
+                }
+                
+                // Add to layer groups
+                layerGroups[categoryName].push({
+                    name: name,
+                    layer: geojsonLayer,
+                    visible: true,
+                    info: options.info || `Vector Layer: ${name}`
+                });
+                
+                // Add to map
+                geojsonLayer.addTo(map);
+                
+                // Update layer control
+                updateLayerControl();
+                
+                return true;
+            } catch (error) {
+                console.error('Error loading GeoJSON:', error);
+                alert(`Failed to load GeoJSON: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // Update the layer control UI
+        function updateLayerControl() {
+            const layerList = document.getElementById('layer-list');
+            layerList.innerHTML = '';
+            
+            // Loop through layer groups
+            for (const groupName in layerGroups) {
+                const group = layerGroups[groupName];
+                
+                if (group.length === 0) continue;
+                
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'layer-group';
+                
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'layer-group-title';
+                groupTitle.textContent = groupName;
+                groupDiv.appendChild(groupTitle);
+                
+                // Handle base layers differently - radio buttons instead of checkboxes
+                if (groupName === 'Base Maps') {
+                    group.forEach((item, index) => {
+                        const layerItem = document.createElement('div');
+                        layerItem.className = 'layer-item';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'radio';
+                        input.name = 'baseLayer';
+                        input.id = `layer-${groupName}-${index}`;
+                        input.checked = map.hasLayer(item.layer);
+                        
+                        input.addEventListener('change', function() {
+                            if (this.checked) {
+                                // Remove all base layers
+                                group.forEach(baseItem => {
+                                    map.removeLayer(baseItem.layer);
+                                });
+                                
+                                // Add selected base layer
+                                map.addLayer(item.layer);
+                            }
+                        });
+                        
+                        const label = document.createElement('label');
+                        label.htmlFor = input.id;
+                        label.textContent = ` ${item.name}`;
+                        
+                        layerItem.appendChild(input);
+                        layerItem.appendChild(label);
+                        groupDiv.appendChild(layerItem);
+                    });
+                } else {
+                    // Regular overlay layers - checkboxes
+                    group.forEach((item, index) => {
+                        const layerItem = document.createElement('div');
+                        layerItem.className = 'layer-item';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'checkbox';
+                        input.id = `layer-${groupName}-${index}`;
+                        input.checked = item.visible;
+                        
+                        input.addEventListener('change', function() {
+                            if (this.checked) {
+                                map.addLayer(item.layer);
+                                item.visible = true;
+                            } else {
+                                map.removeLayer(item.layer);
+                                item.visible = false;
+                                hideInfo(); // Hide info box when layer is turned off
+                            }
+                        });
+                        
+                        const label = document.createElement('label');
+                        label.htmlFor = input.id;
+                        label.textContent = ` ${item.name}`;
+                        
+                        // Add info button
+                        const infoButton = document.createElement('button');
+                        infoButton.textContent = 'i';
+                        infoButton.style.marginLeft = '5px';
+                        infoButton.style.padding = '0px 5px';
+                        infoButton.style.borderRadius = '50%';
+                        
+                        infoButton.addEventListener('click', function() {
+                            showInfo(item.name, item.info);
+                        });
+                        
+                        layerItem.appendChild(input);
+                        layerItem.appendChild(label);
+                        layerItem.appendChild(infoButton);
+                        groupDiv.appendChild(layerItem);
+                    });
+                }
+                
+                layerList.appendChild(groupDiv);
+            }
+        }
+        
+        // Click elsewhere on the map to close info box
+        map.on('click', function() {
+            hideInfo();
+        });
+        
+        // Function to add custom data sources programmatically
+        function addDataSource(type, url, name, options = {}) {
+            if (type === 'geotiff') {
+                loadGeoTIFF(url, name, options);
+            } else if (type === 'geojson') {
+                loadGeoJSON(url, name, options);
+            } else {
+                console.error('Unknown data source type:', type);
+            }
+        }
+        
+        // Export for external use
+        window.mapApp = {
+            map: map,
+            addDataSource: addDataSource,
+            showInfo: showInfo,
+            hideInfo: hideInfo
+        };
+        
+        // Helper function to get style key from description
+        function getStyleKeyFromDescription(styleDescription, layerType) {
+            if (!styleDescription) return 'default';
+            
+            styleDescription = styleDescription.toLowerCase();
+            
+            if (layerType.toLowerCase() === 'polygon') {
+                if (styleDescription.includes('orange') && styleDescription.includes('vertical')) {
+                    return 'orange-vertical-lines';
+                } else if (styleDescription.includes('orange') && styleDescription.includes('horizontal')) {
+                    return 'orange-horizontal-lines';
+                } else if (styleDescription.includes('yellow') && (styleDescription.includes('cross') || styleDescription.includes('hatch'))) {
+                    return 'yellow-cross-hatch';
+                } else if (styleDescription.includes('blue') || styleDescription.includes('water')) {
+                    return 'light-blue';
+                } else if (styleDescription.includes('purple')) {
+                    return 'purple';
+                }
+            } else if (layerType.toLowerCase() === 'line') {
+                if (styleDescription.includes('red') && styleDescription.includes('dot')) {
+                    return 'dotted-red-line';
+                } else if (styleDescription.includes('blue')) {
+                    return 'blue-dash';
+                } else if (styleDescription.includes('green')) {
+                    return 'green-dash';
+                }
+            }
+            
+            return 'default';
+        }
+        
+        // Helper function to get icon key from filename or style description
+        function getIconKeyFromDescription(iconDescription) {
+            if (!iconDescription) return 'default';
+            
+            iconDescription = iconDescription.toLowerCase();
+            
+            // Extract icon name from PNG filename if available
+            if (iconDescription.endsWith('.png')) {
+                const iconName = iconDescription.substring(0, iconDescription.length - 4);
+                return iconName;
+            }
+            
+            // Try to match based on description
+            if (iconDescription.includes('fire')) {
+                return 'fire-prone';
+            } else if (iconDescription.includes('hazard') || iconDescription.includes('waste')) {
+                return 'hazard-waste-sites';
+            } else if (iconDescription.includes('migration')) {
+                return 'migration';
+            } else if (iconDescription.includes('nuclear')) {
+                return 'nuclear';
+            } else if (iconDescription.includes('radiation')) {
+                return 'radiation';
+            } else if (iconDescription.includes('water')) {
+                return 'water';
+            }
+            
+            return 'default';
+        }
+        
+        // Load predefined layers when the map is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Check if the GeoTIFF parsing function is available
+                if (typeof parseGeoraster !== 'function') {
+                    throw new Error("GeoRaster library not properly loaded. Make sure you're using a web server to view this page.");
+                }
+                
+                // Central Asia GeoTIFF layer - using a relative path
+                // Note: Relative paths must use forward slashes, even on Windows
+                addDataSource('geotiff', 'Georeferenced_compressed.tif', 'Central Asia Terrain', {
+                    opacity: 0.8,
+                    info: 'Central Asia Map',
+                    fitBounds: true
+                });
+                
+                // Direct hardcoded layer loading based on the CSV information
+                
+                // Line layers
+                addDataSource('geojson', 'Caspian-Sea-risk-of-flooding-due-to-sea-level.geojson', 'Caspian Sea risk of flooding due to sea level', {
+                    styleKey: 'dotted-red-line',
+                    category: 'Lines',
+                    info: 'Caspian Sea: risk of flooding due to sea level fluctuation'
+                });
+                
+                addDataSource('geojson', 'Projected-decrease-of-river-flow-by-2030-2050.geojson', 'Projected decrease of river flow by 2030-2050', {
+                    styleKey: 'red-double-line',
+                    category: 'Lines',
+                    info: 'Projected decrease of river flow by 2030 - 2050'
+                });
+                
+                addDataSource('geojson', 'projected-increase-of-river-flow-by-mid-century.geojson', 'Projected increase of river flow by mid-century', {
+                    styleKey: 'blue-dash-double-line',
+                    category: 'Lines',
+                    info: 'Projected increase of river flow by mid-century'
+                });
+                
+                addDataSource('geojson', 'Projected-increase-of-river-flow-till-2030-2050-followed-by-overall-decrease-and-seasonal-change.geojson', 'Projected increase of river flow till 2030-2050', {
+                    styleKey: 'blue-double-line',
+                    category: 'Lines',
+                    info: 'Projected increase of river flow till 2030 - 2050 followed by overall decrease and seasonal change'
+                });
+                
+                // Polygon layers
+                addDataSource('geojson', 'Densely-populated-and-industrialized-regions.geojson', 'Densely populated and industrialized regions', {
+                    styleKey: 'orange-vertical-lines',
+                    category: 'Polygons',
+                    info: 'Densely populated and industrialized regions near mountains: environmental stress, water and energy'
+                });
+                
+                addDataSource('geojson', 'Desertification.geojson', 'Desertification', {
+                    styleKey: 'orange-horizontal-lines',
+                    category: 'Polygons',
+                    info: 'Desertification'
+                });
+                
+                // Point layers
+                addDataSource('geojson', 'Fire-prone-area.geojson', 'Fire-prone area', {
+                    iconKey: 'fire-prone',
+                    category: 'Points',
+                    info: 'Fire-prone area'
+                });
+                
+                addDataSource('geojson', 'Hazardous-waste-sites.geojson', 'Hazardous waste sites', {
+                    iconKey: 'hazard-waste-sites',
+                    category: 'Points',
+                    info: 'Hazardous waste sites and industries potentially affected by natural disasters and climate change'
+                });
+                
+                addDataSource('geojson', 'High-mountain-areas-at-risk.geojson', 'High mountain areas at risk', {
+                    iconKey: 'm2',
+                    category: 'Points',
+                    info: 'High mountain areas at risk: energy insecurity, major ecosystem changes, natural disasters, infrastructure damages'
+                });
+                
+                addDataSource('geojson', 'hydro_power_plant.geojson', 'Hydropower plant', {
+                    iconKey: 'blue-circle',
+                    category: 'Points',
+                    info: 'Hydropower plant'
+                });
+                
+                addDataSource('geojson', 'Locust-invasions-and-spread-of-dangerous.geojson', 'Locust invasions and spread of dangerous infections', {
+                    iconKey: 'locust',
+                    category: 'Points',
+                    info: 'Locust invasions and spread of dangerous infections; Human health insecurity and new potential risk of cross-border spread of invasive species and new diseases'
+                });
+                
+                addDataSource('geojson', 'reduction_of_ice_cover.geojson', 'Reduction of ice cover', {
+                    iconKey: 'redu-ice',
+                    category: 'Points',
+                    info: 'Reduction of ice cover'
+                });
+                
+                addDataSource('geojson', 'severe_drought_impacts.geojson', 'Severe drought impacts', {
+                    iconKey: 'drought-1',
+                    category: 'Points',
+                    info: 'Severe drought impacts'
+                });
+                
+                addDataSource('geojson', 'Storage-of-pesticides-or-fertilizers.geojson', 'Storage of pesticides or fertilizers', {
+                    iconKey: 'storage-pesticides',
+                    category: 'Points',
+                    info: 'Storage of pesticides or fertilizers; contamination by pesticides in the event of flooding'
+                });
+                
+                addDataSource('geojson', 'storage_of_radioactive_waste.geojson', 'Storage of radioactive waste', {
+                    iconKey: 'radioactive',
+                    category: 'Points',
+                    info: 'Storage of radioactive waste'
+                });
+                
+            } catch (error) {
+                console.error('Error loading predefined layers:', error);
+                alert(`There was an error loading the map layers: ${error.message}\n\nPlease make sure you're using a web server to view this page and not opening it directly from the file system.`);
+            }
+        });
+    </script>
+</body>
+
+</html>
